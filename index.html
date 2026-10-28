@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Libris — Library Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">📚</span>
+      <div>
+        <h1>Libris</h1>
+        <p>Library Management System</p>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="addBtn">＋ Add Book</button>
+  </header>
+
+  <main class="container">
+    <!-- Stats -->
+    <section class="stats" aria-label="Library statistics">
+      <article class="stat-card">
+        <span class="stat-icon">📖</span>
+        <div><h3 id="statTotal">0</h3><p>Total Books</p></div>
+      </article>
+      <article class="stat-card">
+        <span class="stat-icon green">✅</span>
+        <div><h3 id="statAvailable">0</h3><p>Available</p></div>
+      </article>
+      <article class="stat-card">
+        <span class="stat-icon amber">🔖</span>
+        <div><h3 id="statIssued">0</h3><p>Issued</p></div>
+      </article>
+      <article class="stat-card">
+        <span class="stat-icon violet">🗂️</span>
+        <div><h3 id="statCategories">0</h3><p>Categories</p></div>
+      </article>
+    </section>
+
+    <!-- Toolbar -->
+    <section class="toolbar">
+      <div class="search">
+        <span>🔍</span>
+        <input type="search" id="searchInput" placeholder="Search by title, author, ISBN…" />
+      </div>
+      <select id="categoryFilter" aria-label="Filter by category"></select>
+      <select id="statusFilter" aria-label="Filter by status">
+        <option value="all">All Status</option>
+        <option value="Available">Available</option>
+        <option value="Issued">Issued</option>
+      </select>
+      <select id="sortBy" aria-label="Sort books">
+        <option value="title">Sort: Title</option>
+        <option value="author">Sort: Author</option>
+        <option value="year">Sort: Year</option>
+        <option value="recent">Sort: Recently Added</option>
+      </select>
+    </section>
+
+    <!-- Table -->
+    <section class="table-card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Book</th>
+              <th>ISBN</th>
+              <th>Category</th>
+              <th>Year</th>
+              <th>Status</th>
+              <th class="right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="bookTable"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="emptyState" hidden>
+        <div class="empty-icon">🕮</div>
+        <h3>No books found</h3>
+        <p>Try a different search or add a new book to the shelf.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add / Edit Modal -->
+  <div class="modal" id="bookModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <h2 id="modalTitle">Add Book</h2>
+        <button class="icon-btn" id="closeModal" aria-label="Close">✕</button>
+      </div>
+      <form id="bookForm" novalidate>
+        <input type="hidden" id="bookId" />
+        <div class="field">
+          <label for="title">Title</label>
+          <input type="text" id="title" placeholder="e.g. Clean Code" />
+          <small class="error" data-for="title"></small>
+        </div>
+        <div class="field">
+          <label for="author">Author</label>
+          <input type="text" id="author" placeholder="e.g. Robert C. Martin" />
+          <small class="error" data-for="author"></small>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="isbn">ISBN</label>
+            <input type="text" id="isbn" placeholder="978-0132350884" />
+            <small class="error" data-for="isbn"></small>
+          </div>
+          <div class="field">
+            <label for="year">Year</label>
+            <input type="number" id="year" placeholder="2008" />
+            <small class="error" data-for="year"></small>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="category">Category</label>
+            <select id="category">
+              <option>Programming</option>
+              <option>Fiction</option>
+              <option>Science</option>
+              <option>History</option>
+              <option>Philosophy</option>
+              <option>Biography</option>
+              <option>Self-Help</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="status">Status</label>
+            <select id="status">
+              <option>Available</option>
+              <option>Issued</option>
+            </select>
+          </div>
+        </div>
+        <div class="field" id="issuedToField" hidden>
+          <label for="issuedTo">Issued To</label>
+          <input type="text" id="issuedTo" placeholder="Member name" />
+          <small class="error" data-for="issuedTo"></small>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveBtn">Save Book</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete confirm -->
+  <div class="modal" id="confirmModal" aria-hidden="true">
+    <div class="modal-box small" role="alertdialog" aria-modal="true">
+      <div class="confirm-icon">🗑️</div>
+      <h2>Delete this book?</h2>
+      <p id="confirmText">This action cannot be undone.</p>
+      <div class="modal-actions center">
+        <button class="btn btn-ghost" id="confirmNo">Keep it</button>
+        <button class="btn btn-danger" id="confirmYes">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
